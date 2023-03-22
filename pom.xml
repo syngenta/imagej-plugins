@@ -1,0 +1,114 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.syngenta.imagej.plugins</groupId>
+    <artifactId>opensource</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.1</version>
+
+    <name>Image Colours</name>
+    <description>A plug-in for ImageJ that returns colour statistics</description>
+    <url>https://git.syngentaaws.org/image-analysis/imagej-plugins/opensource</url>
+    <inceptionYear>2023</inceptionYear>
+
+    <organization>
+        <name>Syngenta Ltd.</name>
+        <url>http://www.syngenta.com/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>cpudney</id>
+            <name>Chris Pudney</name>
+            <email>chris.pudney@syngenta.com</email>
+        </developer>
+        <developer>
+            <name>Rob Lind</name>
+            <email>rob.lind@syngenta.com</email>
+        </developer>
+        <developer>
+            <name>Dave Dare</name>
+            <email>david.dare@syngenta.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://git.syngentaaws.org/image-analysis/imagej-plugins/opensource.git</connection>
+    </scm>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.app.intra/</url>
+    </issueManagement>
+
+    <properties>
+        <plugin.install.fileName>_${project.artifactId}.jar</plugin.install.fileName>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij</artifactId>
+            <version>1.52v</version>
+        </dependency>
+    </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>bioscience-imaging</id>
+            <name>Bioscience Imaging Nexus</name>
+            <url>https://nexus.apps.prod.use1.devops.syngentadigitalapps.com/repository/bioscience-imaging/</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/test/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <configuration>
+                    <tasks>
+                        <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                              tofile="${imagej.plugins.path}/${plugin.install.fileName}"/>
+                    </tasks>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
