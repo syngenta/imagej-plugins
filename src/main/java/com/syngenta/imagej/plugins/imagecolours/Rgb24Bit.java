@@ -5,9 +5,7 @@ import ij.process.ImageProcessor;
 
 /**
  * 24-bit RGB colour utilities.
- * <p/>
- * $Author$
- * $Revision$
+
  */
 public class Rgb24Bit {
 

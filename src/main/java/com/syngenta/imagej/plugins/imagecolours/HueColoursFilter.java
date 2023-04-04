@@ -14,20 +14,16 @@ import java.util.regex.Pattern;
 
 /**
  * An ImageJ plug-in that performs colour filtering by hue.
- * <p/>
- * $Author$
- * $Revision$
  */
 
-public
-class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
-{
+public class HueColoursFilter implements ExtendedPlugInFilter, DialogListener {
+
     // About message.
     private static final String ABOUT_HTML =
             "<html><center><h1>Hue Colour Filter</h1><h2>v1.0.1</h2><h3>Credits</h3>Rob Lind (rob.lin@syngenta.com)" +
-            "<br>Chris Pudney (chris.pudney@syngenta.com)<br>Use this filter to help segment images using hue and " +
-            "saturation.<br>It uses both RGB space (to select blacks, greys and whites)<br>and HSB colour space to " +
-            "classify colours by hue. </center></html>";
+                    "<br>Chris Pudney (chris.pudney@syngenta.com)<br>Use this filter to help segment images using hue and " +
+                    "saturation.<br>It uses both RGB space (to select blacks, greys and whites)<br>and HSB colour space to " +
+                    "classify colours by hue. </center></html>";
 
     // Parameter names and defaults.
     private static final String WHITE_MIN_PARAM_NAME = "White_min";
@@ -103,34 +99,34 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
                     DARK_BLUE_SHOW_PARAM_NAME, BLANK_LABEL, YELLOW_LIGHT_SHOW_PARAM_NAME, GREEN_DARK_SHOW_PARAM_NAME,
                     MAGENTA_SHOW_PARAM_NAME, BLANK_LABEL, YELLOW_DARK_SHOW_PARAM_NAME, BLANK_LABEL, BLANK_LABEL};
 
-    // Filter parameters: we make these static so their values persist from one invocation to the next.
-    private static int whiteMin = WHITE_MIN_PARAM_DEFAULT;
-    private static int blackMax = BLACK_MAX_PARAM_DEFAULT;
-    private static int greyTolerance = GREY_TOLERANCE_PARAM_DEFAULT;
-    private static double lightDarkCutoff = LIGHT_DARK_PARAM_DEFAULT;
-    private static double saturationCutoff = SATURATION_PARAM_DEFAULT;
-    private static boolean whiteShow = SHOW_PARAM_DEFAULT;
-    private static boolean blackShow = SHOW_PARAM_DEFAULT;
-    private static boolean greyShow = SHOW_PARAM_DEFAULT;
-    private static boolean redShow = SHOW_PARAM_DEFAULT;
-    private static boolean orangeShow = SHOW_PARAM_DEFAULT;
-    private static boolean brownShow = SHOW_PARAM_DEFAULT;
-    private static boolean lightYellowShow = SHOW_PARAM_DEFAULT;
-    private static boolean darkYellowShow = SHOW_PARAM_DEFAULT;
-    private static boolean greenYellowLightShow = SHOW_PARAM_DEFAULT;
-    private static boolean greenYellowDarkShow = SHOW_PARAM_DEFAULT;
-    private static boolean lightGreenShow = SHOW_PARAM_DEFAULT;
-    private static boolean darkGreenShow = SHOW_PARAM_DEFAULT;
-    private static boolean aquaShow = SHOW_PARAM_DEFAULT;
-    private static boolean lightBlueShow = SHOW_PARAM_DEFAULT;
-    private static boolean darkBlueShow = SHOW_PARAM_DEFAULT;
-    private static boolean magentaShow = SHOW_PARAM_DEFAULT;
-    private static boolean hideBackground = HIDE_BACKGROUND_PARAM_DEFAULT;
-    private static boolean makeGrey = MAKE_GREY_PARAM_DEFAULT;
-    private static boolean binarize = BINARIZE_PARAM_DEFAULT;
-
     // Processing flags for this filter.
     private static final int FLAGS = DOES_RGB | PARALLELIZE_IMAGES | FINAL_PROCESSING;
+
+    // Filter parameters: we make these static so their values persist from one invocation to the next.
+    private static int whiteMin;
+    private static int blackMax;
+    private static int greyTolerance;
+    private static double lightDarkCutoff;
+    private static double saturationCutoff;
+    private static boolean whiteShow;
+    private static boolean blackShow;
+    private static boolean greyShow;
+    private static boolean redShow;
+    private static boolean orangeShow;
+    private static boolean brownShow;
+    private static boolean lightYellowShow;
+    private static boolean darkYellowShow;
+    private static boolean greenYellowLightShow;
+    private static boolean greenYellowDarkShow;
+    private static boolean lightGreenShow;
+    private static boolean darkGreenShow;
+    private static boolean aquaShow;
+    private static boolean lightBlueShow;
+    private static boolean darkBlueShow;
+    private static boolean magentaShow;
+    private static boolean hideBackground;
+    private static boolean makeGrey;
+    private static boolean binarize;
 
     // Whether to show dialogs.
     private final boolean showDialogs;
@@ -144,54 +140,54 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
     /**
      * Create an instance of the filter with default parameter values.
      */
-    public
-    HueColoursFilter() {
+    public HueColoursFilter() {
 
-        // Preserve the current filter parameters.
-        this(whiteMin, blackMax, greyTolerance, lightDarkCutoff, saturationCutoff, whiteShow, blackShow, greyShow,
-             redShow, orangeShow, brownShow, lightYellowShow, darkYellowShow, greenYellowLightShow, greenYellowDarkShow,
-             lightGreenShow, darkGreenShow, aquaShow, lightBlueShow, darkBlueShow, magentaShow, hideBackground,
-             makeGrey, binarize);
+        this(WHITE_MIN_PARAM_DEFAULT, BLACK_MAX_PARAM_DEFAULT, GREY_TOLERANCE_PARAM_DEFAULT,
+                LIGHT_DARK_PARAM_DEFAULT, SATURATION_PARAM_DEFAULT,
+                SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT,
+                SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT,
+                SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT, SHOW_PARAM_DEFAULT,
+                SHOW_PARAM_DEFAULT,
+                HIDE_BACKGROUND_PARAM_DEFAULT, MAKE_GREY_PARAM_DEFAULT, BINARIZE_PARAM_DEFAULT,
+                IJ.getInstance() == null);
     }
 
     /**
      * Create an instance of the filter.
      *
-     * @param whiteMin
-     * @param blackMax
-     * @param greyTolerance
-     * @param lightDarkCutoff
-     * @param saturationCutoff
-     * @param whiteShow
-     * @param blackShow
-     * @param greyShow
-     * @param redShow
-     * @param orangeShow
-     * @param brownShow
-     * @param lightYellowShow
-     * @param darkYellowShow
-     * @param greenYellowLightShow
-     * @param greenYellowDarkShow
-     * @param lightGreenShow
-     * @param darkGreenShow
-     * @param aquaShow
-     * @param lightBlueShow
-     * @param darkBlueShow
-     * @param magentaShow
-     * @param hideBackground
-     * @param makeGrey
-     * @param binarize
+     * @param whiteMin             white minimum value.
+     * @param blackMax             black maximum value.
+     * @param greyTolerance        grey tolerance.
+     * @param lightDarkCutoff      light-dark threshold value.
+     * @param saturationCutoff     saturation threshold value.
+     * @param whiteShow            whether to show white.
+     * @param blackShow            whether to show black.
+     * @param greyShow             whether to show grey.
+     * @param redShow              whether to show red.
+     * @param orangeShow           whether to show orange.
+     * @param brownShow            whether to show brown.
+     * @param lightYellowShow      whether to show light yellow.
+     * @param darkYellowShow       whether to show dark yellow.
+     * @param greenYellowLightShow whether to show light green-yellow.
+     * @param greenYellowDarkShow  whether to show dark green-yellow.
+     * @param lightGreenShow       whether to show light green.
+     * @param darkGreenShow        whether to show dark green.
+     * @param aquaShow             whether to show aqua.
+     * @param lightBlueShow        whether to show light blue.
+     * @param darkBlueShow         whether to show dark blue.
+     * @param magentaShow          whether to show magenta.
+     * @param hideBackground       whether to hide the background.
+     * @param makeGrey             whether to make a greyscale image.
+     * @param binarize             whether to make a binary image.
      */
-    public
-    HueColoursFilter(final int whiteMin, final int blackMax, final int greyTolerance, final double lightDarkCutoff,
-                     final double saturationCutoff, final boolean whiteShow, final boolean blackShow,
-                     final boolean greyShow, final boolean redShow, final boolean orangeShow, final boolean brownShow,
-                     final boolean lightYellowShow, final boolean darkYellowShow, final boolean greenYellowLightShow,
-                     final boolean greenYellowDarkShow, final boolean lightGreenShow, final boolean darkGreenShow,
-                     final boolean aquaShow, final boolean lightBlueShow, final boolean darkBlueShow,
-                     final boolean magentaShow, final boolean hideBackground, final boolean makeGrey,
-                     final boolean binarize)
-    {
+    public HueColoursFilter(final int whiteMin, final int blackMax, final int greyTolerance, final double lightDarkCutoff,
+                            final double saturationCutoff, final boolean whiteShow, final boolean blackShow,
+                            final boolean greyShow, final boolean redShow, final boolean orangeShow, final boolean brownShow,
+                            final boolean lightYellowShow, final boolean darkYellowShow, final boolean greenYellowLightShow,
+                            final boolean greenYellowDarkShow, final boolean lightGreenShow, final boolean darkGreenShow,
+                            final boolean aquaShow, final boolean lightBlueShow, final boolean darkBlueShow,
+                            final boolean magentaShow, final boolean hideBackground, final boolean makeGrey,
+                            final boolean binarize, final boolean fromPlugin) {
 
 
         this.whiteMin = whiteMin;
@@ -219,89 +215,298 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
         this.makeGrey = makeGrey;
         this.binarize = binarize;
 
-
         progress = 0;
 
         // Running in ImageJ?
-        showDialogs = IJ.getInstance() != null;
+        showDialogs = !fromPlugin;
     }
 
     /**
-     * Create an instance of the filter.
+     * Creates an RGB value for a shade of grey.
      *
-     * @param whiteMin
-     * @param blackMax
-     * @param greyTolerance
-     * @param lightDarkCutoff
-     * @param saturationCutoff
-     * @param whiteShow
-     * @param blackShow
-     * @param greyShow
-     * @param redShow
-     * @param orangeShow
-     * @param brownShow
-     * @param lightYellowShow
-     * @param darkYellowShow
-     * @param greenYellowLightShow
-     * @param greenYellowDarkShow
-     * @param lightGreenShow
-     * @param darkGreenShow
-     * @param aquaShow
-     * @param lightBlueShow
-     * @param darkBlueShow
-     * @param magentaShow
-     * @param hideBackground
-     * @param makeGrey
-     * @param binarize
-     * @param fromPlugin
+     * @param level grey value.
+     * @return packed integer representation of RGB.
      */
-    public
-    HueColoursFilter(final int whiteMin, final int blackMax, final int greyTolerance, final double lightDarkCutoff,
-                     final double saturationCutoff, final boolean whiteShow, final boolean blackShow,
-                     final boolean greyShow, final boolean redShow, final boolean orangeShow, final boolean brownShow,
-                     final boolean lightYellowShow, final boolean darkYellowShow, final boolean greenYellowLightShow,
-                     final boolean greenYellowDarkShow, final boolean lightGreenShow, final boolean darkGreenShow,
-                     final boolean aquaShow, final boolean lightBlueShow, final boolean darkBlueShow,
-                     final boolean magentaShow, final boolean hideBackground, final boolean makeGrey,
-                     final boolean binarize, final boolean fromPlugin)
-    {
+    private static int toGreyRgb(final int level) {
 
+        return Rgb24Bit.pack(level, level, level);
+    }
 
-        this.whiteMin = whiteMin;
-        this.blackMax = blackMax;
-        this.greyTolerance = greyTolerance;
-        this.lightDarkCutoff = lightDarkCutoff;
-        this.saturationCutoff = saturationCutoff;
-        this.whiteShow = whiteShow;
-        this.blackShow = blackShow;
-        this.greyShow = greyShow;
-        this.redShow = redShow;
-        this.orangeShow = orangeShow;
-        this.brownShow = brownShow;
-        this.lightYellowShow = lightYellowShow;
-        this.darkYellowShow = darkYellowShow;
-        this.greenYellowLightShow = greenYellowLightShow;
-        this.greenYellowDarkShow = greenYellowDarkShow;
-        this.lightGreenShow = lightGreenShow;
-        this.darkGreenShow = darkGreenShow;
-        this.aquaShow = aquaShow;
-        this.lightBlueShow = lightBlueShow;
-        this.darkBlueShow = darkBlueShow;
-        this.magentaShow = magentaShow;
-        this.hideBackground = hideBackground;
-        this.makeGrey = makeGrey;
-        this.binarize = binarize;
+    /**
+     * Return current parameters back to a macro so user can set them first manually then process a folder using
+     * settings the returned string is split into an array on TAB character (\t)<p>
+     * <p>
+     * Example:<br>
+     * package = "com.syngenta.imagej.plugins.imagecolours.HueColoursFilter.";<br>
+     * options = call(package + "getOptions");
+     *
+     * @return Array of parameters as a string.
+     */
+    public static String getOptions() {
 
+        return getOptionString(WHITE_MIN_PARAM_NAME, whiteMin) +
+                getOptionString(BLACK_MAX_PARAM_NAME, blackMax) +
+                getOptionString(GREY_TOLERANCE_PARAM_NAME, greyTolerance) +
+                getOptionString(LIGHT_DARK_PARAM_NAME, lightDarkCutoff) +
+                getOptionString(SATURATION_PARAM_NAME, saturationCutoff) +
+                getOptionString(WHITE_SHOW_PARAM_NAME, whiteShow) +
+                getOptionString(RED_SHOW_PARAM_NAME, redShow) +
+                getOptionString(GREEN_YELLOW_LIGHT_SHOW_PARAM_NAME, greenYellowLightShow) +
+                getOptionString(AQUA_SHOW_PARAM_NAME, aquaShow) +
+                getOptionString(BLACK_SHOW_PARAM_NAME, blackShow) +
+                getOptionString(ORANGE_SHOW_PARAM_NAME, orangeShow) +
+                getOptionString(GREEN_YELLOW_DARK_SHOW_PARAM_NAME, greenYellowDarkShow) +
+                getOptionString(LIGHT_BLUE_SHOW_PARAM_NAME, lightBlueShow) +
+                getOptionString(GREY_SHOW_PARAM_NAME, greyShow) +
+                getOptionString(BROWN_SHOW_PARAM_NAME, brownShow) +
+                getOptionString(GREEN_LIGHT_PARAM_NAME, lightGreenShow) +
+                getOptionString(DARK_BLUE_SHOW_PARAM_NAME, darkBlueShow) +
+                getOptionString(YELLOW_LIGHT_SHOW_PARAM_NAME, lightYellowShow) +
+                getOptionString(GREEN_DARK_SHOW_PARAM_NAME, darkGreenShow) +
+                getOptionString(MAGENTA_SHOW_PARAM_NAME, magentaShow) +
+                getOptionString(YELLOW_DARK_SHOW_PARAM_NAME, darkYellowShow) +
+                getOptionString(BINARIZE_PARAM_NAME, binarize) +
+                getOptionString(MAKE_GREY_PARAM_NAME, makeGrey) +
+                getOptionString(HIDE_BACKGROUND_PARAM_NAME, hideBackground);
+    }
 
-        progress = 0;
+    private static String getOptionKey(final CharSequence name) {
+        return OPTIONS_REGEX.matcher(name).replaceAll("").toLowerCase().trim();
+    }
 
-        // Running in ImageJ?
+    private static String getOptionString(final String name, final String value) {
 
-        if (fromPlugin) {
-            showDialogs = false;
-        } else {
-            showDialogs = true;
+        return getOptionKey(name) + '=' + value + OPTIONS_SEPARATOR;
+    }
+
+    private static String getOptionString(final String name, final boolean value) {
+
+        return value ? getOptionKey(name) + OPTIONS_SEPARATOR : "";
+    }
+
+    private static String getOptionString(final String name, final int value) {
+        return getOptionString(name, String.valueOf(value));
+    }
+
+    private static String getOptionString(final String name, final double value) {
+        return getOptionString(name, String.valueOf(value));
+    }
+
+    /**
+     * Set the image to run the filter on.
+     *
+     * @param img the image.
+     */
+    public void setImageForFilter(final ImagePlus img) {
+        image = img;
+
+        if (binarize) {
+            Rgb24Bit.binarizeImage(image, 128);
         }
+
+        WindowManager.setTempCurrentImage(image);
+    }
+
+    /**
+     * Gets the image the filter is applied to.
+     *
+     * @return the image.
+     */
+    public ImagePlus getImage() {
+        return image;
+    }
+
+    /**
+     * Calculates the hue colour for a pixel.
+     *
+     * @param pixel the pixel value (packed RGB)
+     * @return the calculated hue.
+     */
+    private int calculateHueColour(final int pixel) {
+
+        // Split RGB pixel value into it's components.
+        final int[] rgb = Rgb24Bit.unpack(pixel);
+
+        // Convert to HSV.
+        final double[] hsv = ColourSpaceUtilities.convertRgb2Hsv(rgb);
+        final double hue = hsv[0];
+        final double saturation = hsv[1];
+        final double variance = hsv[2];
+
+        // Calculate RGB sensitivity and mean.
+        final int rgbDiff = ColourSpaceUtilities.getRgbSensitivity(rgb[0], rgb[1], rgb[2]);
+        final int rgbMean = (rgb[0] + rgb[1] + rgb[2]) / 3;
+
+        // Work out in RGB space if colour is black, gray or white first and if not go into HSB to colour pixel.
+        return binarize ? calculateBinaryHueColour(hue, saturation, variance, rgbDiff, rgbMean) :
+                calculateRgbHueColour(hue, saturation, variance, rgbDiff, rgbMean, pixel);
+    }
+
+    /**
+     * Calculate the hue colour.
+     *
+     * @param hue        hue value.
+     * @param saturation saturation value.
+     * @param variance   variance value.
+     * @param diff       RGB sensitivity.
+     * @param mean       RGB mean.
+     * @param pixel      original pixel value.
+     * @return the hue colour.
+     */
+    private int calculateRgbHueColour(final double hue, final double saturation, final double variance, final int diff,
+                                      final int mean, final int pixel) {
+        int result = pixel;
+        final boolean isLight = variance >= lightDarkCutoff;
+        final boolean notSaturated = saturation <= saturationCutoff;
+
+        if (hideBackground) {
+            result = Rgb24Bit.LIGHT_GREY;
+        } else if (makeGrey) {
+            result = toGreyRgb(mean);
+        }
+
+        if (diff < greyTolerance || notSaturated) {
+
+            if (mean <= blackMax) {
+                if (blackShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (mean < whiteMin) {
+                if (greyShow) {
+                    result = Rgb24Bit.GREY;
+                }
+            } else if (mean >= whiteMin) {
+                if (whiteShow) {
+                    result = Rgb24Bit.WHITE;
+                }
+            }
+        } else //if (!notSaturated) is always true.
+        {
+            if (hue <= RED_HUE) {
+                if (redShow) {
+                    result = Rgb24Bit.RED;
+                }
+            } else if (hue <= ORANGE_HUE) {
+                if (isLight && orangeShow) {
+                    result = Rgb24Bit.ORANGE;
+                } else if (!isLight && brownShow) {
+                    result = Rgb24Bit.BROWN;
+                }
+            } else if (hue <= YELLOW_HUE) {
+                if (isLight && lightYellowShow) {
+                    result = Rgb24Bit.LIGHT_YELLOW;
+                } else if (!isLight && darkYellowShow) {
+                    result = Rgb24Bit.DARK_YELLOW;
+                }
+            } else if (hue <= YELLOW_GREEN_HUE) {
+                if (isLight && greenYellowLightShow) {
+                    result = Rgb24Bit.LIGHT_YELLOW_GREEN;
+                } else if (!isLight && greenYellowDarkShow) {
+                    result = Rgb24Bit.DARK_YELLOW_GREEN;
+                }
+            } else if (hue <= GREEN_HUE) {
+                if (isLight && lightGreenShow) {
+                    result = Rgb24Bit.LIGHT_GREEN;
+                } else if (!isLight && darkGreenShow) {
+                    result = Rgb24Bit.DARK_GREEN;
+                }
+            } else if (hue <= AQUA_HUE) {
+                if (aquaShow) {
+                    result = Rgb24Bit.AQUA;
+                }
+            } else if (hue <= BLUE_HUE) {
+                if (isLight && lightBlueShow) {
+                    result = Rgb24Bit.LIGHT_BLUE;
+                } else if (!isLight && darkBlueShow) {
+                    result = Rgb24Bit.DARK_BLUE;
+                }
+            } else if (hue <= MAGENTA_HUE) {
+                if (magentaShow) {
+                    result = Rgb24Bit.MAGENTA;
+                }
+            } else if (hue <= MAX_HUE) {
+                if (redShow) {
+                    result = Rgb24Bit.RED;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Calculate the hue colour.
+     *
+     * @param hue        hue value.
+     * @param saturation saturation value.
+     * @param variance   variance value.
+     * @param diff       RGB sensitivity.
+     * @param mean       RGB mean.
+     * @return binary colour.
+     */
+    private int calculateBinaryHueColour(final double hue, final double saturation, final double variance, final int diff,
+                                         final int mean) {
+        int result = Rgb24Bit.WHITE;
+        final boolean isLight = variance >= lightDarkCutoff;
+        final boolean notSaturated = saturation <= saturationCutoff;
+
+        if (diff < greyTolerance || notSaturated) {
+
+            if (mean <= blackMax) {
+                if (blackShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (mean < whiteMin) {
+                if (greyShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (mean >= whiteMin) {
+                if (whiteShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            }
+        } else //if (!isNotSaturated) always true.
+        {
+            if (hue <= RED_HUE) {
+                if (redShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= ORANGE_HUE) {
+                if (isLight && orangeShow || !isLight && brownShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= YELLOW_HUE) {
+                if (isLight && lightYellowShow || !isLight && darkYellowShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= YELLOW_GREEN_HUE) {
+                if (isLight && greenYellowLightShow || !isLight && greenYellowDarkShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= GREEN_HUE) {
+                if (isLight && lightGreenShow || !isLight && darkGreenShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= AQUA_HUE) {
+                if (aquaShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= BLUE_HUE) {
+                if (isLight && lightBlueShow || !isLight && darkBlueShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= MAGENTA_HUE) {
+                if (magentaShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            } else if (hue <= MAX_HUE) {
+                if (redShow) {
+                    result = Rgb24Bit.BLACK;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -320,26 +525,21 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
      * @param imp image the plug-in is to be applied to.
      */
     @Override
-    public
-    int setup(final String arg, final ImagePlus imp) {
+    public int setup(final String arg, final ImagePlus imp) {
 
-        if ("about".equals(arg))
-        {
+        if ("about".equals(arg)) {
             IJ.showMessage(ABOUT_HTML);
             return DONE;
         }
 
-        if (imp == null)
-        {
+        if (imp == null) {
             IJ.noImage();
             return DONE;
         }
 
         // Final pass.
-        if ("final".equalsIgnoreCase(arg))
-        {
-            if (binarize)
-            {
+        if ("final".equalsIgnoreCase(arg)) {
+            if (binarize) {
                 Rgb24Bit.binarizeImage(image, 128);
             }
             return DONE;
@@ -371,12 +571,10 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
      * {@code ExtendedPlugInFilter}.
      */
     @Override
-    public
-    int showDialog(final ImagePlus imp, final String command, final PlugInFilterRunner pfr) {
+    public int showDialog(final ImagePlus imp, final String command, final PlugInFilterRunner pfr) {
 
         // Show dialogs?
-        if (!showDialogs)
-        {
+        if (!showDialogs) {
             return FLAGS;
         }
 
@@ -394,13 +592,13 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
         gd.addSlider(SATURATION_PARAM_NAME, 0.0, 1.0001, saturationCutoff);
 
         gd.addCheckboxGroup(CHECKBOX_GROUP_ROWS, CHECKBOX_GROUP_COLS, LABELS,
-                            new boolean[]{whiteShow, redShow, greenYellowLightShow, aquaShow, blackShow, orangeShow,
-                                    greenYellowDarkShow, lightBlueShow, greyShow, brownShow, lightGreenShow,
-                                    darkBlueShow, false, lightYellowShow, darkGreenShow, magentaShow, false,
-                                    darkYellowShow, false, false}, HEADINGS);
+                new boolean[]{whiteShow, redShow, greenYellowLightShow, aquaShow, blackShow, orangeShow,
+                        greenYellowDarkShow, lightBlueShow, greyShow, brownShow, lightGreenShow,
+                        darkBlueShow, false, lightYellowShow, darkGreenShow, magentaShow, false,
+                        darkYellowShow, false, false}, HEADINGS);
 
         gd.addMessage("--------------Click on 'Make Binary' to convert selected colours to black and non-selected to " +
-                      "white----------------");
+                "white----------------");
         gd.addCheckbox(BINARIZE_PARAM_NAME, binarize);
         gd.addMessage(
                 "--------------Click on 'Hide background image' to turn deselected colours to grey----------------");
@@ -431,8 +629,7 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
      * OK button and preview (if any).
      */
     @Override
-    public
-    boolean dialogItemChanged(final GenericDialog gd, final AWTEvent e) {
+    public boolean dialogItemChanged(final GenericDialog gd, final AWTEvent e) {
 
         // Reset counter.
         progress = 0;
@@ -476,11 +673,9 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
      * @param nPasses number of passes.
      */
     @Override
-    public
-    void setNPasses(final int nPasses) {
+    public void setNPasses(final int nPasses) {
 
     }
-
 
     /**
      * Filters use this method to process the image. If the
@@ -497,13 +692,11 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
      * @param ip image to process.
      */
     @Override
-    public
-    void run(final ImageProcessor ip) {
+    public void run(final ImageProcessor ip) {
 
         IJ.showStatus("Calculating hues colours...");
 
-        try
-        {
+        try {
 
             // Image pixels.
             final int[] pixels = (int[]) ip.getPixels();
@@ -515,8 +708,7 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
             final int mX;
             final int mY;
             final int mW;
-            if (image.getRoi() != null && image.getMask() != null)
-            {
+            if (image.getRoi() != null && image.getMask() != null) {
 
                 mask = (byte[]) image.getMask().getPixels();
                 final Rectangle maskRect = image.getRoi().getBounds();
@@ -524,9 +716,7 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
                 mY = maskRect.y;
                 mW = maskRect.width;
 
-            }
-            else
-            {
+            } else {
                 mask = null;
                 mX = 0;
                 mY = 0;
@@ -543,19 +733,16 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
             // Loop through ROI rectangle (it is clipped against the mask ROI).
             final int maxY = rY + rH;
             final int maxX = rX + rW;
-            for (int y = rY; y < maxY; y++)
-            {
+            for (int y = rY; y < maxY; y++) {
 
                 // Calculate offsets into pixel arrays.
                 int roiOffset = rX + y * width;
                 int maskOffset = mask == null ? 0 : (y - mY) * mW + rX - mX;
 
-                for (int x = rX; x < maxX; x++)
-                {
+                for (int x = rX; x < maxX; x++) {
 
                     // Perform calculation (if masked).
-                    if (mask == null || mask[maskOffset] != 0)
-                    {
+                    if (mask == null || mask[maskOffset] != 0) {
 
                         // Calculate hue.
                         pixels[roiOffset] = calculateHueColour(pixels[roiOffset]);
@@ -568,390 +755,8 @@ class HueColoursFilter implements ExtendedPlugInFilter, DialogListener
 
                 IJ.showProgress(progress++, height - 1);
             }
-        }
-        catch (final Throwable e) {
+        } catch (final Throwable e) {
             IJ.error("Runtime Error", e.getMessage());
         }
-    }
-
-    /**
-     * Calculates the hue colour for a pixel.
-     *
-     * @param pixel the pixel value (packed RGB)
-     * @return the calculated hue.
-     */
-    private static
-    int calculateHueColour(final int pixel) {
-
-        // Split RGB pixel value into it's components.
-        final int[] rgb = Rgb24Bit.unpack(pixel);
-
-        // Convert to HSV.
-        final double[] hsv = ColourSpaceUtilities.convertRgb2Hsv(rgb);
-        final double hue = hsv[0];
-        final double saturation = hsv[1];
-        final double variance = hsv[2];
-
-        // Calculate RGB sensitivity and mean.
-        final int rgbDiff = ColourSpaceUtilities.getRgbSensitivity(rgb[0], rgb[1], rgb[2]);
-        final int rgbMean = (rgb[0] + rgb[1] + rgb[2]) / 3;
-
-        // Work out in RGB space if colour is black, gray or white first and if not go into HSB to colour pixel.
-        return binarize ? calculateBinaryHueColour(hue, saturation, variance, rgbDiff, rgbMean) :
-               calculateRgbHueColour(hue, saturation, variance, rgbDiff, rgbMean, pixel);
-    }
-
-    /**
-     * Calculate the hue colour.
-     *
-     * @param hue        hue value.
-     * @param saturation saturation value.
-     * @param variance   variance value.
-     * @param diff       RGB sensitivity.
-     * @param mean       RGB mean.
-     * @param pixel      original pixel value.
-     * @return the hue colour.
-     */
-    private static
-    int calculateRgbHueColour(final double hue, final double saturation, final double variance, final int diff,
-                              final int mean, final int pixel)
-    {
-        int result = pixel;
-        final boolean isLight = variance >= lightDarkCutoff;
-        final boolean notSaturated = saturation <= saturationCutoff;
-
-        if (hideBackground)
-        {
-            result = Rgb24Bit.LIGHT_GREY;
-        }
-        else if (makeGrey)
-        {
-            result = toGreyRgb(mean);
-        }
-
-        if (diff < greyTolerance || notSaturated)
-        {
-
-            if (mean <= blackMax)
-            {
-                if (blackShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (mean < whiteMin)
-            {
-                if (greyShow)
-                {
-                    result = Rgb24Bit.GREY;
-                }
-            }
-            else if (mean >= whiteMin)
-            {
-                if (whiteShow)
-                {
-                    result = Rgb24Bit.WHITE;
-                }
-            }
-        }
-        else //if (!notSaturated) is always true.
-        {
-            if (hue <= RED_HUE)
-            {
-                if (redShow)
-                {
-                    result = Rgb24Bit.RED;
-                }
-            }
-            else if (hue <= ORANGE_HUE)
-            {
-                if (isLight && orangeShow)
-                {
-                    result = Rgb24Bit.ORANGE;
-                }
-                else if (!isLight && brownShow)
-                {
-                    result = Rgb24Bit.BROWN;
-                }
-            }
-            else if (hue <= YELLOW_HUE)
-            {
-                if (isLight && lightYellowShow)
-                {
-                    result = Rgb24Bit.LIGHT_YELLOW;
-                }
-                else if (!isLight && darkYellowShow)
-                {
-                    result = Rgb24Bit.DARK_YELLOW;
-                }
-            }
-            else if (hue <= YELLOW_GREEN_HUE)
-            {
-                if (isLight && greenYellowLightShow)
-                {
-                    result = Rgb24Bit.LIGHT_YELLOW_GREEN;
-                }
-                else if (!isLight && greenYellowDarkShow)
-                {
-                    result = Rgb24Bit.DARK_YELLOW_GREEN;
-                }
-            }
-            else if (hue <= GREEN_HUE)
-            {
-                if (isLight && lightGreenShow)
-                {
-                    result = Rgb24Bit.LIGHT_GREEN;
-                }
-                else if (!isLight && darkGreenShow)
-                {
-                    result = Rgb24Bit.DARK_GREEN;
-                }
-            }
-            else if (hue <= AQUA_HUE)
-            {
-                if (aquaShow)
-                {
-                    result = Rgb24Bit.AQUA;
-                }
-            }
-            else if (hue <= BLUE_HUE)
-            {
-                if (isLight && lightBlueShow)
-                {
-                    result = Rgb24Bit.LIGHT_BLUE;
-                }
-                else if (!isLight && darkBlueShow)
-                {
-                    result = Rgb24Bit.DARK_BLUE;
-                }
-            }
-            else if (hue <= MAGENTA_HUE)
-            {
-                if (magentaShow)
-                {
-                    result = Rgb24Bit.MAGENTA;
-                }
-            }
-            else if (hue <= MAX_HUE)
-            {
-                if (redShow)
-                {
-                    result = Rgb24Bit.RED;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Calculate the hue colour.
-     *
-     * @param hue        hue value.
-     * @param saturation saturation value.
-     * @param variance   variance value.
-     * @param diff       RGB sensitivity.
-     * @param mean       RGB mean.
-     * @return binary colour.
-     */
-    private static
-    int calculateBinaryHueColour(final double hue, final double saturation, final double variance, final int diff,
-                                 final int mean)
-    {
-        int result = Rgb24Bit.WHITE;
-        final boolean isLight = variance >= lightDarkCutoff;
-        final boolean notSaturated = saturation <= saturationCutoff;
-
-        if (diff < greyTolerance || notSaturated)
-        {
-
-            if (mean <= blackMax)
-            {
-                if (blackShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (mean < whiteMin)
-            {
-                if (greyShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (mean >= whiteMin)
-            {
-                if (whiteShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-        }
-        else //if (!isNotSaturated) always true.
-        {
-            if (hue <= RED_HUE)
-            {
-                if (redShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= ORANGE_HUE)
-            {
-                if (isLight && orangeShow || !isLight && brownShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= YELLOW_HUE)
-            {
-                if (isLight && lightYellowShow || !isLight && darkYellowShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= YELLOW_GREEN_HUE)
-            {
-                if (isLight && greenYellowLightShow || !isLight && greenYellowDarkShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= GREEN_HUE)
-            {
-                if (isLight && lightGreenShow || !isLight && darkGreenShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= AQUA_HUE)
-            {
-                if (aquaShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= BLUE_HUE)
-            {
-                if (isLight && lightBlueShow || !isLight && darkBlueShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= MAGENTA_HUE)
-            {
-                if (magentaShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-            else if (hue <= MAX_HUE)
-            {
-                if (redShow)
-                {
-                    result = Rgb24Bit.BLACK;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Creates an RGB value for a shade of grey.
-     *
-     * @param level grey value.
-     * @return packed integer representation of RGB.
-     */
-    private static
-    int toGreyRgb(final int level) {
-
-        return Rgb24Bit.pack(level, level, level);
-    }
-
-    /**
-     * Return current parameters back to a macro so user can set theM first manually then process a folder using
-     * settings the returned string is split into an array on TAB character (\t)<p>
-     * <p>
-     * Example:<br>
-     * package = "com.syngenta.imagej.plugins.imagecolours.HueColoursFilter.";<br>
-     * options = call(package + "getOptions");
-     *
-     * @return Array of parameters as a string.
-     */
-    public static
-    String getOptions() {
-
-        return getOptionString(WHITE_MIN_PARAM_NAME, whiteMin) +
-               getOptionString(BLACK_MAX_PARAM_NAME, blackMax) +
-               getOptionString(GREY_TOLERANCE_PARAM_NAME, greyTolerance) +
-               getOptionString(LIGHT_DARK_PARAM_NAME, lightDarkCutoff) +
-               getOptionString(SATURATION_PARAM_NAME, saturationCutoff) +
-               getOptionString(WHITE_SHOW_PARAM_NAME, whiteShow) +
-               getOptionString(RED_SHOW_PARAM_NAME, redShow) +
-               getOptionString(GREEN_YELLOW_LIGHT_SHOW_PARAM_NAME, greenYellowLightShow) +
-               getOptionString(AQUA_SHOW_PARAM_NAME, aquaShow) +
-               getOptionString(BLACK_SHOW_PARAM_NAME, blackShow) +
-               getOptionString(ORANGE_SHOW_PARAM_NAME, orangeShow) +
-               getOptionString(GREEN_YELLOW_DARK_SHOW_PARAM_NAME, greenYellowDarkShow) +
-               getOptionString(LIGHT_BLUE_SHOW_PARAM_NAME, lightBlueShow) +
-               getOptionString(GREY_SHOW_PARAM_NAME, greyShow) +
-               getOptionString(BROWN_SHOW_PARAM_NAME, brownShow) +
-               getOptionString(GREEN_LIGHT_PARAM_NAME, lightGreenShow) +
-               getOptionString(DARK_BLUE_SHOW_PARAM_NAME, darkBlueShow) +
-               getOptionString(YELLOW_LIGHT_SHOW_PARAM_NAME, lightYellowShow) +
-               getOptionString(GREEN_DARK_SHOW_PARAM_NAME, darkGreenShow) +
-               getOptionString(MAGENTA_SHOW_PARAM_NAME, magentaShow) +
-               getOptionString(YELLOW_DARK_SHOW_PARAM_NAME, darkYellowShow) +
-               getOptionString(BINARIZE_PARAM_NAME, binarize) +
-               getOptionString(MAKE_GREY_PARAM_NAME, makeGrey) +
-               getOptionString(HIDE_BACKGROUND_PARAM_NAME, hideBackground);
-    }
-
-    private static
-    String getOptionKey(final CharSequence name) {
-        return OPTIONS_REGEX.matcher(name).replaceAll("").toLowerCase().trim();
-    }
-
-    private static
-    String getOptionString(final String name, final String value) {
-
-        return getOptionKey(name) + '=' + value + OPTIONS_SEPARATOR;
-    }
-
-    private static
-    String getOptionString(final String name, final boolean value) {
-
-        return value ? getOptionKey(name) + OPTIONS_SEPARATOR : "";
-    }
-
-    private static
-    String getOptionString(final String name, final int value) {
-        return getOptionString(name, String.valueOf(value));
-    }
-
-    private static
-    String getOptionString(final String name, final double value) {
-        return getOptionString(name, String.valueOf(value));
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // *** These functions are used in Java and Python apps. Do not delete ***
-
-    public void setImageForFilter(ImagePlus img)
-    {
-        image = img;
-
-        if (binarize)
-        {
-            Rgb24Bit.binarizeImage(image, 128);
-        }
-
-        WindowManager.setTempCurrentImage(image);
-    }
-
-    public ImagePlus getImage()
-    {
-        return image;
     }
 }
