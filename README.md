@@ -4,9 +4,9 @@ To install the plug-in copy the JAR file to ImageJ's plug-ins directory, replaci
 
 # RUN
 
-The filters can be found under the Syngenta menu:
+The filters can be found under the Plugins menu:
 
-Syngenta>OpenSource
+Plugins > Segmentation > Hue Colours
 
 To invoke the filter from a macro use the following, e.g.
 
