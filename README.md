@@ -1,10 +1,22 @@
-# INSTALL
+# Syngenta ImageJ Plugins
 
-To install the plug-in copy the JAR file to ImageJ's plug-ins directory, replacing or deleting any old version of it.
+This repository contains the following ImageJ plug-ins:
 
-# RUN
++ Segmentation > Hue Colours: segment an image in colour-space
 
-The filters can be found under the Plugins menu:
+## Installation
+
+Build `hue-colours-1.0.1.jar` using Maven:
+
+```
+maven package
+```
+
+Then copy JAR file to ImageJ's plug-ins directory, replacing or deleting any old version of it.
+
+## Run
+
+The filter can be found under the Plugins menu:
 
 Plugins > Segmentation > Hue Colours
 

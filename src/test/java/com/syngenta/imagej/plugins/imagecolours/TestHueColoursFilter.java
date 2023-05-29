@@ -1,15 +1,19 @@
 package com.syngenta.imagej.plugins.imagecolours;
 
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestHueColoursFilter {
 
     private static final String TEST_IMAGE_DIR = "data/testimages/ImageColours/HueColoursFilter";
 
 
     @Test
-    public void testGetOptions() {
+    // We want this run before any other test - jUnit uses alphabetical order
+    public void testAAAGetOptions() {
         // Test default options.
         Assert.assertEquals("Incorrect default options",
                 "white_min=0 black_max=0 tolerance=0 light_dark_threshold=0.0 saturation_min=0.0 ", HueColoursFilter.getOptions());
@@ -23,7 +27,6 @@ public class TestHueColoursFilter {
         Assert.assertEquals("Incorrect default options",
                 "white_min=240 black_max=12 tolerance=4 light_dark_threshold=0.5 saturation_min=0.05 _white _red _greenyellow_light _aqua _black _orange _greenyellow_dark_ _light_blue _grey _brown _green_light_ _dark_blue _yellow_light_ _green_dark_ _magenta _yellow_dark_ make make_background hide ", HueColoursFilter.getOptions());
     }
-
 
 
     @Test

@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 /**
  * An ImageJ plug-in that performs colour filtering by hue.
  */
-
 public class HueColoursFilter implements ExtendedPlugInFilter, DialogListener {
 
     // About message.
