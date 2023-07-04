@@ -1,19 +1,9 @@
 package com.syngenta.imagej.plugins.imagecolours;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.process.ImageProcessor;
-
 /**
  * Useful colour space utilities.
- *
- * @author $Author$
- * @version $Revision$
  */
-public final
-class ColourSpaceUtilities
-{
-
+public final class ColourSpaceUtilities {
     // Colour space ranges.
     public static final double LCH_L_MIN = 0.0;
     public static final double LCH_C_MIN = 0.0;
@@ -68,25 +58,21 @@ class ColourSpaceUtilities
     private static final double SIXTEENTHS = 16.0 / 116.0;
     private static final double EXPONENT = 1.0 / 2.4;
 
-    static
-    {
+    static {
         createLookUpTables();
     }
 
     /**
      * Utilities class - no public constructor.
      */
-    private
-    ColourSpaceUtilities() {
+    private ColourSpaceUtilities() {
         // No public access.
     }
 
-    private static
-    void createLookUpTables() {
+    private static void createLookUpTables() {
 
         // Generate f(x) samples and find the output arrays.
-        for (int i = 0; i < NUM_XYZ_ENTRIES; i++)
-        {
+        for (int i = 0; i < NUM_XYZ_ENTRIES; i++) {
 
             final double x = (double) i / (NUM_XYZ_ENTRIES - 1);
             final double x1 = (x + 0.055) / 1.055;
@@ -103,8 +89,7 @@ class ColourSpaceUtilities
         }
 
         // Find the c, d, and output arrays: g=c*w + d.
-        for (int seg = 0; seg <= XYZ2LAB_SEGMENTS; seg++)
-        {
+        for (int seg = 0; seg <= XYZ2LAB_SEGMENTS; seg++) {
 
             final double f0 = getFx(2 * seg);    // Use doubles until we get
             final double f1 = getFx(2 * seg + 1);// to c and d, for accuracy.
@@ -121,8 +106,7 @@ class ColourSpaceUtilities
         }
 
         // LAB to LCH look up table generation.
-        for (int seg = 0; seg <= TRIG_SEGMENTS; seg++)
-        {
+        for (int seg = 0; seg <= TRIG_SEGMENTS; seg++) {
 
             // Square root function. Doubles used for accuracy at start.
             double f00 = getRoot(2 * seg);
@@ -171,22 +155,19 @@ class ColourSpaceUtilities
         LAB2LCH_T2[2][2] = 1.0f;
     }
 
-    private static
-    double getArctan(final int i) {
+    private static double getArctan(final int i) {
 
         final double x = i / (2.0 * TRIG_SEGMENTS);
         return StrictMath.atan(x) * 180.0 / Math.PI;
     }
 
-    private static
-    double getRoot(final int i) {
+    private static double getRoot(final int i) {
 
         final double x = i / (2.0 * TRIG_SEGMENTS);
         return Math.sqrt(1.0 + x * x);
     }
 
-    private static
-    double getFx(final int i) {
+    private static double getFx(final int i) {
 
         final double x = i / (2.0 * XYZ2LAB_SEGMENTS);
         return x > 0.008856 ? StrictMath.pow(x, ONE_THIRD) : 7.787 * x + SIXTEENTHS;
@@ -198,8 +179,7 @@ class ColourSpaceUtilities
      * @param rgb the red, green, blue triple.
      * @return the HSV values in a three element float array (0: H; 1: XYZ2LAB_SEGMENTS; 2: V).
      */
-    public static
-    double[] convertRgb2Hsv(final int... rgb) {
+    public static double[] convertRgb2Hsv(final int... rgb) {
 
         final double r = rgb[0] / 255.0;    // R 0..1
         final double g = rgb[1] / 255.0;    // G 0..1
@@ -211,37 +191,26 @@ class ColourSpaceUtilities
 
         double hue = 0.0;
         final double saturation;
-        if (rgbDelta == 0.0)
-        {                  // This is a grey, no chroma...
+        if (rgbDelta == 0.0) {                  // This is a grey, no chroma...
             hue = 0.0;                          // HSV results = 0 or 1
             saturation = 0.0;
-        }
-        else
-        {                                // Chromatic data...
+        } else {                                // Chromatic data...
             saturation = rgbDelta / rgbMax;
             final double rDelta = ((rgbMax - r) / 6.0 + rgbDelta / 2.0) / rgbDelta;
             final double gDelta = ((rgbMax - g) / 6.0 + rgbDelta / 2.0) / rgbDelta;
             final double bDelta = ((rgbMax - b) / 6.0 + rgbDelta / 2.0) / rgbDelta;
 
-            if (r == rgbMax)
-            {
+            if (r == rgbMax) {
                 hue = bDelta - gDelta;
-            }
-            else if (g == rgbMax)
-            {
+            } else if (g == rgbMax) {
                 hue = ONE_THIRD + rDelta - bDelta;
-            }
-            else if (b == rgbMax)
-            {
+            } else if (b == rgbMax) {
                 hue = TWO_THIRDS + gDelta - rDelta;
             }
 
-            if (hue < 0.0)
-            {
+            if (hue < 0.0) {
                 hue += 1.0;
-            }
-            else if (hue > 1.0)
-            {
+            } else if (hue > 1.0) {
                 hue -= 1.0;
             }
         }
@@ -255,8 +224,7 @@ class ColourSpaceUtilities
      * @param rgb the red, green blue triple.
      * @return the HSB triple.
      */
-    public static
-    int[] convertRgb2Hsb(final int... rgb) {
+    public static int[] convertRgb2Hsb(final int... rgb) {
 
         final double[] hsv = convertRgb2Hsv(rgb);
         return new int[]{(int) Math.round(hsv[0] * 255.0), (int) Math.round(hsv[1] * 255.0),
@@ -271,13 +239,12 @@ class ColourSpaceUtilities
      * @param blue  the value as a string.
      * @return the HSB triple.
      */
-    public static
-    String convertRgb2Hsb4Macro(final String red, final String green, final String blue) {
+    public static String convertRgb2Hsb4Macro(final String red, final String green, final String blue) {
 
         final double[] hsv = convertRgb2Hsv(Integer.parseInt(red), Integer.parseInt(green), Integer.parseInt(blue));
         return Integer.toString((int) Math.round(hsv[0] * 255.0)) + '\t' +
-               Integer.toString((int) Math.round(hsv[1] * 255.0)) + '\t' +
-               Integer.toString((int) Math.round(hsv[2] * 255.0));
+                Integer.toString((int) Math.round(hsv[1] * 255.0)) + '\t' +
+                Integer.toString((int) Math.round(hsv[2] * 255.0));
     }
 
     /**
@@ -286,8 +253,7 @@ class ColourSpaceUtilities
      * @param hsb hue, saturation, brightness triple.
      * @return the RGB triple.
      */
-    public static
-    int[] convertHsb2Rgb(final float... hsb) {
+    public static int[] convertHsb2Rgb(final float... hsb) {
 
         final double hue = hsb[0];
         final double sat = hsb[1];
@@ -296,58 +262,43 @@ class ColourSpaceUtilities
         final double green;
         final double blue;
 
-        if (sat == 0.0)
-        {
+        if (sat == 0.0) {
             red = green = blue = bright / 255.0;
-        }
-        else
-        {
+        } else {
             // Convert to 0..1 range.
             final double hueVal = hue / 255.0;
             final double satVal = sat / 255.0;
             final double brightVal = bright / 255.0;
 
             double varH = hueVal * 6.0;
-            if (varH == 6.0)
-            {
+            if (varH == 6.0) {
                 varH = 0.0;      // H must be < 1.
             }
             final double varI = Math.floor(varH);
             final double var1 = brightVal * (1.0 - satVal);
             final double var2 = brightVal * (1.0 - satVal * (varH - varI));
             final double var3 = brightVal * (1.0 - satVal * (1.0 - varH + varI));
-            if (varI == 0.0)
-            {
+            if (varI == 0.0) {
                 red = brightVal;
                 green = var3;
                 blue = var1;
-            }
-            else if (varI == 1.0)
-            {
+            } else if (varI == 1.0) {
                 red = var2;
                 green = brightVal;
                 blue = var1;
-            }
-            else if (varI == 2.0)
-            {
+            } else if (varI == 2.0) {
                 red = var1;
                 green = brightVal;
                 blue = var3;
-            }
-            else if (varI == 3.0)
-            {
+            } else if (varI == 3.0) {
                 red = var1;
                 green = var2;
                 blue = brightVal;
-            }
-            else if (varI == 4.0)
-            {
+            } else if (varI == 4.0) {
                 red = var3;
                 green = var1;
                 blue = brightVal;
-            }
-            else
-            {
+            } else {
                 red = brightVal;
                 green = var1;
                 blue = var2;
@@ -355,7 +306,8 @@ class ColourSpaceUtilities
         }
 
         // Return RGB triple (0..255).
-        return new int[]{(int) Math.round(red * 255.0), (int) Math.round(green * 255.0),
+        return new int[]{(int) Math.round(red * 255.0),
+                (int) Math.round(green * 255.0),
                 (int) Math.round(blue * 255.0)};
     }
 
@@ -367,8 +319,7 @@ class ColourSpaceUtilities
      * @param bright is the  brightness value.
      * @return the RGB triple.
      */
-    public static
-    String convertHsb2Rgb4Macro(final String hue, final String sat, final String bright) {
+    public static String convertHsb2Rgb4Macro(final String hue, final String sat, final String bright) {
         final int[] rgb = convertHsb2Rgb(Float.parseFloat(hue), Float.parseFloat(sat), Float.parseFloat(bright));
         return Integer.toString(rgb[0]) + '\t' + Integer.toString(rgb[1]) + '\t' + Integer.toString(rgb[2]);
     }
@@ -379,8 +330,7 @@ class ColourSpaceUtilities
      * @param rgb the red, green, blue triple.
      * @return the XYZ triple.
      */
-    public static
-    float[] convertRgb2Xyz(final int... rgb) {
+    public static float[] convertRgb2Xyz(final int... rgb) {
 
         final int red = rgb[0];
         final int green = rgb[1];
@@ -398,8 +348,7 @@ class ColourSpaceUtilities
      * @param blue  the value as a string.
      * @return the XYZ triple.
      */
-    public static
-    String convertRgb2Lab4Macro(final String red, final String green, final String blue) {
+    public static String convertRgb2Lab4Macro(final String red, final String green, final String blue) {
         final float[] lab =
                 convertXyz2Lab(convertRgb2Xyz(Integer.parseInt(red), Integer.parseInt(green), Integer.parseInt(blue)));
         return Double.toString(lab[0]) + '\t' + Double.toString(lab[1]) + '\t' + Double.toString(lab[2]);
@@ -412,8 +361,7 @@ class ColourSpaceUtilities
      * @param xyz the XYZ triple.
      * @return the LAB triple.
      */
-    public static
-    float[] convertXyz2Lab(final float... xyz) {
+    public static float[] convertXyz2Lab(final float... xyz) {
 
         // Find s and w.
         final float ux = XYZ2LAB_X * xyz[0];
@@ -440,8 +388,7 @@ class ColourSpaceUtilities
      * @param lab the LAB triple.
      * @return the converted LCH triple.
      */
-    public static
-    float[] convertLab2Lch(final float... lab) {
+    public static float[] convertLab2Lch(final float... lab) {
 
         //Inputs
         final float b = lab[2];
@@ -455,21 +402,16 @@ class ColourSpaceUtilities
         final float bm = Math.abs(b);
         final int sa = (int) Math.signum(a) + 1;
         final int sb = (int) Math.signum(b) + 1;
-        if (am == 0.0f && bm == 0.0f)
-        {
+        if (am == 0.0f && bm == 0.0f) {
             C = 0.0f;
             H = 360.0f;
-        }
-        else if (am > bm)
-        {
+        } else if (am > bm) {
             final float u = TRIG_SEGMENTS * bm / am;
             final int s = Math.round(u);
             final float w = u - s;
             C = am * (ROOT_C[s] * w + ROOT_D[s]);
             H = LAB2LCH_T1[sa][sb] + LAB2LCH_T2[sa][sb] * (ARCTAN_C[s] * w + ARCTAN_D[s]);
-        }
-        else
-        {
+        } else {
             final float u = TRIG_SEGMENTS * am / bm;
             final int s = Math.round(u);
             final float w = u - s;
@@ -486,8 +428,7 @@ class ColourSpaceUtilities
      * @param xyz the XYZ triple.
      * @return the red, green, blue triple.
      */
-    public static
-    int[] convertXyz2Rgb(final float... xyz) {
+    public static int[] convertXyz2Rgb(final float... xyz) {
 
         final float x = xyz[0] / 100.0f;       // X from 0 to  95.047.
         final float y = xyz[1] / 100.0f;       // Y from 0 to 100.000
@@ -510,8 +451,7 @@ class ColourSpaceUtilities
      * @param lab the LAB triple.
      * @return the XYZ triple.
      */
-    public static
-    float[] convertLab2Xyz(final float... lab) {
+    public static float[] convertLab2Xyz(final float... lab) {
 
         final double x = (lab[0] + 16.0) / 116.0;
         final double y = lab[1] / 500.0 + x;
@@ -520,10 +460,9 @@ class ColourSpaceUtilities
         return new float[]{(float) (95.047 * lab2xyz(y)), (float) (100.0 * lab2xyz(x)), (float) (108.883 * lab2xyz(z))};
     }
 
-    private static
-    double lab2xyz(final double x) {
-        final double x3 = StrictMath.pow(x, 3);
-        return x3 > 0.008856 ? x3 : (x - SIXTEENTHS) / 7.787;
+    private static double lab2xyz(final double val) {
+        final double x3 = StrictMath.pow(val, 3);
+        return x3 > 0.008856 ? x3 : (val - SIXTEENTHS) / 7.787;
     }
 
     /**
@@ -532,8 +471,7 @@ class ColourSpaceUtilities
      * @param lch the LCH triple.
      * @return the LAB triple.
      */
-    public static
-    float[] convertLch2Lab(final float... lch) {
+    public static float[] convertLch2Lab(final float... lch) {
 
         final double theta = lch[2] * Math.PI / 180.0;
         return new float[]{lch[0], (float) (StrictMath.cos(theta) * lch[1]), (float) (StrictMath.sin(theta) * lch[1])};
@@ -547,20 +485,16 @@ class ColourSpaceUtilities
      * @param blue  blue channel.
      * @return the sensitivity value.
      */
-    public static
-    int getRgbSensitivity(final int red, final int green, final int blue) {
+    public static int getRgbSensitivity(final int red, final int green, final int blue) {
 
         int rgbDiff = 0;
-        if (Math.abs(red - green) > rgbDiff)
-        {
+        if (Math.abs(red - green) > rgbDiff) {
             rgbDiff = Math.abs(red - green);
         }
-        if (Math.abs(red - blue) > rgbDiff)
-        {
+        if (Math.abs(red - blue) > rgbDiff) {
             rgbDiff = Math.abs(red - blue);
         }
-        if (Math.abs(green - blue) > rgbDiff)
-        {
+        if (Math.abs(green - blue) > rgbDiff) {
             rgbDiff = Math.abs(green - blue);
         }
         return rgbDiff;
